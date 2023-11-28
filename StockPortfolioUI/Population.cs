@@ -6,12 +6,14 @@ using System.Threading.Tasks;
 
 namespace StockPortfolioUI
 {
-    internal class Population
+    public class Population
     {
         public int generationNumber { get; private set; }
         public double avgFitness { get; private set; }
         public double bestFitness { get; private set; }
         public List<Individual> Individuals { get; set; }
+
+        private int selectionMode = 0;
         private int counter = 0;
         private Random random = new Random();
         private int populationSize = GlobalParametrs.POPULATION_SIZE;
@@ -21,11 +23,14 @@ namespace StockPortfolioUI
             generationNumber = 1;
         }
 
-        public void InitializePopulation()
+        public void InitializePopulation(int mode)
         {
             generationNumber = 1;
             avgFitness = 0;
             bestFitness = 0;
+            counter = 0;
+            selectionMode = mode;
+            populationSize = GlobalParametrs.POPULATION_SIZE;
             Individuals.Clear();
             for (int i = 0; i < populationSize; i++)
             {
@@ -45,20 +50,21 @@ namespace StockPortfolioUI
             avgFitness = Individuals.Select(x => x.Fitness).Average();
 
             int count = GlobalParametrs.PARENTPOOL_SIZE;
-            parentPool = RouletteSelect(Individuals, count);
-            //parentPool = TournamentSelect(Individuals, count);
-
-            for (int i = 0; i < GlobalParametrs.PARENTPOOL_SIZE; i++)
+            
+            switch (selectionMode)
             {
-                for (int j = 0; j < GlobalParametrs.PARENTPOOL_SIZE; j++)
-                {
-                    if (i != j)
-                    {
-                        Individual newIndividual = Crossover(parentPool[i], parentPool[j]);
-                        newPopulation.Add(newIndividual);
-                    }
-                }
-                if (newPopulation.Count >= populationSize) break;
+                case 0:
+                    parentPool = RouletteSelect(Individuals, count);
+                    break;
+                case 1:
+                    parentPool = TournamentSelect(Individuals, count);
+                    break;
+            }
+
+            while(newPopulation.Count < populationSize)
+            {
+                Individual newIndividual = Crossover(parentPool[random.Next(0, count)], parentPool[random.Next(0, count)]);
+                newPopulation.Add(newIndividual);
             }
 
             Individuals = newPopulation;
@@ -66,10 +72,10 @@ namespace StockPortfolioUI
 
             double bestGrowth = Individuals.Select(x => x.Fitness).Max() - bestFitness;
             double avgGrowth = Individuals.Select(x => x.Fitness).Average() - avgFitness;
-            if (bestGrowth < 0.01 && bestGrowth > -0.01) counter++;
+            if (bestGrowth <= 0.01 && bestGrowth >= -0.01) counter++;
             else counter = 0;
 
-            if (counter > 15) return true;
+            if (counter > GlobalParametrs.ITERTIONS_UNCHANGED) return true;
             else return false;
         }
         public Individual DoubleCrossover(Individual parent1, Individual parent2)
@@ -118,8 +124,6 @@ namespace StockPortfolioUI
             value1 = Convert.ToByte((value1 * 100) / sum);
             value2 = Convert.ToByte((value2 * 100) / sum);
             value3 = Convert.ToByte((value3 * 100) / sum);
-            byte difference = (byte)(100 - (value1 + value2 + value3));
-
             if (value1 == 0 || value2 == 0 || value3 == 0)
             {
                 byte maxValue = Math.Max(value1, Math.Max(value2, value3));
@@ -136,7 +140,8 @@ namespace StockPortfolioUI
                     value2 -= 1;
                 else
                     value3 -= 1;
-            }                                                
+            }
+            byte difference = (byte)(100 - (value1 + value2 + value3));
             if (sum == 100) return;
             if (difference != 0)
             {
@@ -154,14 +159,31 @@ namespace StockPortfolioUI
                 {
                     value3 += difference;
                 }
-            }              
+            }
+            if (value1 == 99 || value2 == 99 || value3 == 99)
+            {
+                byte minValue = Math.Min(value1, Math.Min(value2, value3));
+                if (value1 == 99)
+                    value1--;
+                else if (value2 == 99)
+                    value2--;
+                else if (value3 == 99)
+                    value3--;
+
+                if (minValue == value1)
+                    value1 += 1;
+                else if (minValue == value2)
+                    value2 += 1;
+                else
+                    value3 += 1;
+            }
         }
         private string MutateGenes(string genes)
         {
             char[] chromosome = genes.ToCharArray();
             for (int i = 0; i < chromosome.Length; i++)
             {
-                if (random.Next(0, 100) == 1)
+                if (random.NextDouble() <= GlobalParametrs.MUTATION_CHANCE)
                 {
                     chromosome[i] = (chromosome[i] == '0') ? '1' : '0';
                 }

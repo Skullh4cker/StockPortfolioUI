@@ -49,6 +49,12 @@
   <ItemGroup>
     <Compile Include="Chromosome.cs" />
     <Compile Include="ChromosomeHelper.cs" />
+    <Compile Include="DetailedPopulation.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DetailedPopulation.Designer.cs">
+      <DependentUpon>DetailedPopulation.cs</DependentUpon>
+    </Compile>
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -60,6 +66,9 @@
     <Compile Include="Population.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="DetailedPopulation.resx">
+      <DependentUpon>DetailedPopulation.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>

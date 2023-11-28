@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace StockPortfolioUI
 {
-    internal class Individual
+    public class Individual
     {
         public byte Weight1 { get; set; }
         public byte Weight2 { get; set; }

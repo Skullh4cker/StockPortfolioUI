@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace StockPortfolioUI
 {
-    internal class Chromosome
+    public class Chromosome
     {
         public string Genes { get; set; }
         public Chromosome(string genes)

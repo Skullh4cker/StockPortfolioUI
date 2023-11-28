@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace StockPortfolioUI
 {
-    internal class ChromosomeHelper
+    public class ChromosomeHelper
     {
         public static string EncodeIndividualToChromosome(Individual individual)
         {
